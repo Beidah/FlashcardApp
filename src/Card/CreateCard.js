@@ -1,12 +1,11 @@
 import React,  { useEffect, useState } from "react";
-import { useHistory, useParams } from "react-router";
-import { createCard, readDeck } from "../utils/api";
+import { useParams } from "react-router";
+import { readDeck } from "../utils/api";
 import Breadcrumb from "../Layout/Breadcrumb";
 import CardForm from "./CardForm";
 import NotFound from "../Layout/NotFound";
 
 function CreateCard({ setCards }) {
-  const history = useHistory();
   const { deckId } = useParams();
   const [deck, setDeck] = useState({})
 
@@ -36,44 +35,35 @@ function CreateCard({ setCards }) {
     return () => abortController.abort();
   }, [deckId, setCards]);
 
-  const initialCard = {
-    front: "",
-    back: "",
-  };
-  const [formData, setFormData] = useState(initialCard);
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   const abortController = new AbortController();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const abortController = new AbortController();
+  //   createCard(deck.id, formData, abortController.signal)
+  //     .then((newCard) => {
+  //       setCards((cards) =>  [...cards, newCard])
+  //       setFormData(initialCard)
+  //     })
+  //     .catch((err) => {
+  //       console.log(`Error creating card: ${err}`);
+  //     });
 
-    createCard(deck.id, formData, abortController.signal)
-      .then((newCard) => {
-        setCards((cards) =>  [...cards, newCard])
-        setFormData(initialCard)
-      })
-      .catch((err) => {
-        console.log(`Error creating card: ${err}`);
-      });
-
-    return () => abortController.abort();
-  }
-
-  const handleCancel = () => {
-    history.push(`/decks/${deck.id}`)
-  }
+  //   return () => abortController.abort();
+  // }
 
   if (deck) {
-    console.log(deck)
     return (
       <div className="container">
-        <Breadcrumb deck={deck} active="Create Card" />
+        <Breadcrumb deck={deck} active="Add Card" />
         <h2>{deck.name}: Add Card</h2>
-        <CardForm handleSubmit={handleSubmit} handleCancel={handleCancel} formData={formData} setFormData={setFormData} submitButtonLabel="Save" cancelButtonLabel="Done" />
+        <CardForm setCards={setCards} submitButtonLabel="Save" cancelButtonLabel="Done" />
       </div>
     )
   }
 
-  return <NotFound />
+  return (
+    <NotFound />
+  )
 }
 
 export default CreateCard;

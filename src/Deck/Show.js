@@ -5,7 +5,7 @@ import EditCard from "../Card/EditCard";
 import NotFound from "../Layout/NotFound";
 import { readDeck } from "../utils/api";
 import DeckInfo from "./DeckInfo";
-import Edit from "./Edit";
+import Edit from "./EditDeck";
 import Study from "./Study";
 
 function Show() {

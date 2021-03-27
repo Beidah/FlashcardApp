@@ -1,65 +1,63 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
+import { createDeck, readDeck, updateDeck } from "../utils/api";
 
-// class Form extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       name: "", 
-//       description: ""
-//     };
-//   }
+function DeckForm({ deck=undefined, buttonLabel }) {
+  const history = useHistory();
+  const createMode = !deck;
+  console.log(createMode);
 
-//   handleChange(event) {
-//     const target = event.target;
-//     const value = target.type === 'checkbox' ? target.checked : target.value;
-//     const name = target.name;
+  const blankDeck = { name: "", description: "" };
+  const [formData, setFormData] = useState(blankDeck);
 
-//     this.setState({
-//       [name]: value
-//     });
-//   }
+  useEffect(() => {
+    if (!createMode) {
+      const abortController = new AbortController();
+  
+      async function loadDeck() {
+        readDeck(deck.id, abortController.signal)
+          .then((deck) => {
+            console.log(deck);
+            setFormData(deck);
+          })
+          .catch((error) => {
+            if (error.name === "AbortError") {
+              console.log("Aborted loadDecks");
+            } else {
+              console.log("Error loading deck:", error);
+            }
+          });
+      }
+  
+      loadDeck();
+  
+      return () => abortController.abort();
+    }
+  }, [createMode, deck]);
 
-//   handleSubmit(event) {
-//     event.preventDefault();
+  const handleChange = ({ target }) => {
+    setFormData({
+      ...formData,
+      [target.name]: target.value,
+    });
+  }
 
-    
-//   }
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-//   render() {
-//     return (
-//       <form onSubmit={this.props.handleSubmit}>
-//         <div className="form-group">
-//           <label htmlFor="name">Name</label>
-//           <input 
-//             type="text" 
-//             className="form-control" 
-//             name="name" 
-//             id="name" 
-//             placeholder="Deck Name"
-//             onChange={this.handleChange.bind(this)}
-//             value={this.name}
-//             required
-//           />
-//         </div>
-//         <div className="form-group">
-//           <label htmlFor="description">Description</label>
-//           <textarea 
-//             className="form-control" 
-//             name="description" 
-//             id="description" 
-//             placeholder="Brief description of the deck"
-//             onChange={this.handleChange.bind(this)}
-//             value={this.description}
-//             required
-//           />
-//         </div>
-//         <button type="submit" className="btn btn-primary">{this.props.buttonLabel}</button>
-//       </form>
-//     );
-//   }
-// }
+    if (createMode) {
+      createDeck(formData)
+        .then((deck) => {
+          history.push(`/decks/${deck.id}`);
+        });
+    } else {
+      updateDeck(formData)
+        .then((deck) => {
+          history.push(`/decks/${deck.id}`);
+        });
+    }
+  }
 
-function DeckForm({handleSubmit, formData, handleChange, buttonLabel}) {
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
